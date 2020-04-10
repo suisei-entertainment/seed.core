@@ -27,6 +27,9 @@ import os
 import logging
 from enum import IntEnum
 
+# Dependency Imports
+import sentry_sdk
+
 # SEED Imports
 from suisei.seed.utils import ServiceLocator
 
@@ -82,6 +85,18 @@ class Application:
 
         return self._debug_mode
 
+    @property
+    def IsSentryIOUsed(self) -> bool:
+
+        """
+        Whether or not Sentry.IO is used.
+
+        Authors:
+            Attila Kovacs
+        """
+
+        return self._use_sentry_io
+
     def __init__(self,
                  business_logic: 'BusinessLogic',
                  service_directory: str = '',
@@ -89,7 +104,8 @@ class Application:
                  config_directory: str = '',
                  debug_mode: bool = False,
                  service_dir_required: bool = False,
-                 config_dir_required: bool = False) -> None:
+                 config_dir_required: bool = False,
+                 sentry_dsn: str=None) -> None:
 
         """
         Creates a new Application instance.
@@ -140,6 +156,14 @@ class Application:
         """
         The logger object to be used by this class.
         """
+
+        # Whether or not Sentry.IO should be used.
+        self._use_sentry_io = False
+
+        # Initialize Sentry.IO
+        if sentry_dsn:
+            self._use_sentry_io = True
+            sentry_sdk.init(dsn=sentry_dsn)
 
         # Validate the provided directories.
         try:
@@ -198,6 +222,7 @@ class Application:
             self._business_logic.after_main_loop()
         except Exception as error:
             self._business_logic.on_uncaught_exception(error)
+            sentry_sdk.capture_exception(error)
             result = ApplicationReturnCodes.UNCAUGHT_EXCEPTION
 
         return result
