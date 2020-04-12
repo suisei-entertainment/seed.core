@@ -55,9 +55,12 @@ class DaemonApplication(Application):
                  service_directory: str = '',
                  service_package: str = '',
                  config_directory: str = '',
+                 data_directory: str = '',
                  debug_mode: bool = False,
                  service_dir_required: bool = False,
                  config_dir_required: bool = False,
+                 data_dir_required: bool = False,
+                 sentry_dsn: str = '',
                  pid_file: str,
                  stdin: str = os.devnull,
                  stdout: str = os.devnull,
@@ -76,6 +79,8 @@ class DaemonApplication(Application):
                                     services.
             config_directory:       The directory which contains the initial
                                     application configuration.
+            data_directory:         The directory which contains data the
+                                    application is working with.
             business_logic:         The business logic representation.
             debug_mode:             Whether or not the application should be
                                     started in debug mode.
@@ -83,6 +88,10 @@ class DaemonApplication(Application):
                                     directory and service package is requried.
             config_dir_required:    Whether or not providing a valid config
                                     directory is required.
+            data_dir_required:      Whether or not providing a valid data
+                                    directory is required.
+            sentry_dsn:             The endpoint in Sentry.IO that this
+                                    application is using.
             pid_file:               Path to the pid file the daemon will use.
             stdin:                  The input stream to be used by the daemon.
             stdout:                 The output stream to be used by the daemon.
@@ -102,9 +111,12 @@ class DaemonApplication(Application):
                          service_directory=service_directory,
                          service_package=service_package,
                          config_directory=config_directory,
+                         data_directory=data_directory,
                          debug_mode=debug_mode,
                          service_dir_required=service_dir_required,
-                         config_dir_required=config_dir_required)
+                         config_dir_required=config_dir_required,
+                         data_dir_required=data_dir_required,
+                         sentry_dsn=sentry_dsn)
 
         self._pid_file = os.path.abspath(os.path.expanduser(pid_file))
         self._stdin = stdin

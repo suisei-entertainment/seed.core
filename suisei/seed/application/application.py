@@ -97,14 +97,66 @@ class Application:
 
         return self._use_sentry_io
 
+    @property
+    def ServiceDirectory(self) -> str:
+
+        """
+        Path to the directory containing the initial services of the
+        application.
+
+        Authors:
+            Attila Kovacs
+        """
+
+        return self._service_directory
+
+    @property
+    def ServicePackage(self) -> str:
+
+        """
+        Package name to use when loading the initial services.
+
+        Authors:
+            Attila Kovacs
+        """
+
+        return self._service_package
+
+    @property
+    def ConfigDirectory(self) -> str:
+
+        """
+        Path to the directory containing the initial application configuration.
+
+        Authors:
+            Attila Kovacs
+        """
+
+        return self._config_directory
+
+    @property
+    def DataDirectory(self) -> str:
+
+        """
+        Path to the directory containing the data the application is working
+        with.
+
+        Authors:
+            Attila Kovacs
+        """
+
+        return self._data_directory
+
     def __init__(self,
                  business_logic: 'BusinessLogic',
                  service_directory: str = '',
                  service_package: str = '',
                  config_directory: str = '',
+                 data_directory: str = '',
                  debug_mode: bool = False,
                  service_dir_required: bool = False,
                  config_dir_required: bool = False,
+                 data_dir_required: bool = False,
                  sentry_dsn: str=None) -> None:
 
         """
@@ -117,6 +169,8 @@ class Application:
                                     services.
             config_directory:       The directory which contains the initial
                                     application configuration.
+            data_directory:         The directory which contains data the
+                                    application is working with.
             business_logic:         The business logic representation.
             debug_mode:             Whether or not the application should be
                                     started in debug mode.
@@ -124,6 +178,10 @@ class Application:
                                     directory and service package is requried.
             config_dir_required:    Whether or not providing a valid config
                                     directory is required.
+            data_dir_required:      Whether or not providing a valid data
+                                    directory is required.
+            sentry_dsn:             The endpoint in Sentry.IO that this
+                                    application is using.
 
         Raises:
             InvalidInputError:      Raised when no valid business logic
@@ -173,8 +231,32 @@ class Application:
                                            service_dir_required)
             self._validate_config_directory(config_directory,
                                             config_dir_required)
+            self._validate_data_directory(data_directory,
+                                          data_dir_required)
         except InvalidInputError:
             raise
+
+        self._service_directory = service_directory
+        """
+        The service directory containing the initial services of the
+        application.
+        """
+
+        self._service_package = service_package
+        """
+        The service package to be used when loading the services from the
+        service directory.
+        """
+
+        self._config_directory = config_directory
+        """
+        The directory containing the initial services of the application.
+        """
+
+        self._data_directory = data_directory
+        """
+        The directory containing the additional data of the application.
+        """
 
         # Configure initial services
         self._business_logic.initialize_services()
@@ -297,7 +379,7 @@ class Application:
 
     @staticmethod
     def _validate_config_diretory(config_directory: str,
-                                  config_dir_required: str) -> None:
+                                  config_dir_required: bool) -> None:
 
         """
         Validates the configuration directory of the application.
@@ -330,3 +412,37 @@ class Application:
                 'Configuration directory {} does not exist.'.format(real_path))
 
         return
+
+    @staticmethod
+    def _validate_data_directory(data_directory: str,
+                                 data_dir_required: bool) -> None:
+
+        """
+        Validates the data directory of the application.
+
+        Args:
+            data_directory:         The directory which contains the additional
+                                    data used by the application.
+            data_dir_required:      Whether or not providing a valid data
+                                    directory is required.
+
+        Raises:
+            InvalidInputError:      Raised if there is no data directory
+                                    provided, or the provided directory doesn't
+                                    exist.
+
+        Authors:
+            Attila Kovacs
+        """
+
+        if not data_dir_required:
+            return
+
+        if not data_directory or data_directory == '':
+            raise InvalidInputError('No valid data directory was provided.')
+
+        real_path = os.path.abspath(os.path.expanduser(data_directory))
+
+        if not os.path.isdir(real_path):
+            raise InvalidInputError(
+                'Data directory {} does not exist.'.format(real_path))

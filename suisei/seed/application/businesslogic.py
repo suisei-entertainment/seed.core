@@ -24,6 +24,7 @@ Contains the implementation of the BusinessLogic class.
 
 # SEED Imports
 from suisei.seed.utils import ServiceLocator
+from .application import ApplicationReturnCodes
 
 class BusinessLogic:
 
@@ -35,15 +36,16 @@ class BusinessLogic:
         Attila Kovacs
     """
 
-    def main_loop(self) -> int:
+    def main_loop(self) -> ApplicationReturnCodes:
 
         """
         Contains the main loop (or the main business execution logic of
         the application.
 
         Returns:
-            The overall return code of the application. 0 for successful
-            execution, or an integer value to indicate issues.
+            The overall return code of the application.
+            ApplicationReturnCodes.SUCCESS for successful execution, or an
+            integer value to indicate issues.
 
         Authors:
             Attila Kovacs
@@ -51,7 +53,7 @@ class BusinessLogic:
 
         #pylint: disable=no-self-use
 
-        return 0
+        return ApplicationReturnCodes.SUCCESS
 
     def before_main_loop(self) -> None:
 
