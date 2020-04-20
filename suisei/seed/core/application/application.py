@@ -24,7 +24,6 @@ Contains the implementation of the base Application class.
 
 # Platform Imports
 import os
-import logging
 from enum import IntEnum
 
 # Dependency Imports
@@ -32,6 +31,7 @@ import sentry_sdk
 
 # SEED Imports
 from suisei.seed.utils import ServiceLocator
+from suisei.seed.log import LogWriter
 
 from .businesslogic import BusinessLogic
 from .applicationaccessservice import ApplicationAccessService
@@ -51,7 +51,7 @@ class ApplicationReturnCodes(IntEnum):
     # Uncaught exception was triggered.
     UNCAUGHT_EXCEPTION = 666
 
-class Application:
+class Application(LogWriter):
 
     """
     Base class that provides functionality that is common between all
@@ -196,6 +196,9 @@ class Application:
             Attila Kovacs
         """
 
+        super().__init__(channel_name='suisei.seed.application',
+                         cache_entries=True)
+
         if business_logic is None:
             raise InvalidInputError('No valid business logic implementation '
                                     'was provided.')
@@ -208,11 +211,6 @@ class Application:
         self._debug_mode = debug_mode
         """
         Whether or not the application should be started in debug mode.
-        """
-
-        self._logger = logging.getLogger('suisei.seed.application')
-        """
-        The logger object to be used by this class.
         """
 
         # Whether or not Sentry.IO should be used.
@@ -291,7 +289,7 @@ class Application:
         if configuration is not None:
             configuration.load()
         else:
-            self._logger.error('Failed to retrieve configuration service.')
+            self.error('Failed to retrieve configuration service.')
 
         # Catching every uncaught exception here is intentional so that
         # the applications can react to it and to also set the proper
